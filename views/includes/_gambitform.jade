@@ -1,0 +1,68 @@
+form.form-horizontal.js-submit(action="/gambits", method="post")
+  .form-group
+    label.col-sm-2.control-label(for='input') Input
+    .col-sm-10
+      input#input.form-control.input-lg(type='text', name="input", placeholder='Input')
+  .form-group
+    label.col-sm-2.control-label(for='reply') Quick Reply
+    .col-sm-10
+      input#reply.form-control(type='text', name="reply", placeholder='Quick Reply')
+      input#replyId.form-control(type='hidden', name="replyId")
+
+  .form-group#topicGroup
+    label.col-sm-2.control-label(for='reply') Topic
+    .col-sm-5
+      select#topicId.form-control(name="topicId")
+        option(value="") None
+        -for(var i = 0; i < topics.length; i++)
+          option(value="#{topics[i]._id}")= topics[i].name
+
+
+  .form-group
+    .col-sm-offset-2.col-sm-10
+      .checkbox
+        label
+          input#js-isQuestion(type='checkbox', name="isQuestion") 
+          | Is Question
+
+  .form-group.js-questionType(class="hidden")
+    label.col-sm-2.control-label(for='reply') Question Type
+    .col-xs-3
+      select#qtype.form-control(name="qType")
+        option(value="") None
+        option(value="WH") Question word
+        option(value="YN") Yes/No
+        option(value="TG") Tag Question
+        option(value="CH") Choice Question
+
+  .form-group
+    .col-sm-offset-2.col-sm-10
+      button.btn.btn-default(type='submit') Create Gambit
+
+  script.
+
+    $('.js-submit').submit(function(e){
+      e.preventDefault();
+      $.ajax({ 
+        type: 'POST',
+        url: '/gambits/quick', 
+        data: $( this ).serialize(),
+        success: function(result) {
+          if (result.success) {
+            $("#topicId").val("");
+            $("#replyId").val("");
+            $("#reply").val("");
+            $("#input").val("");
+
+            swal("Sweet", "Gambit Added", "success");   
+          } else {
+            swal("Sweet", result.error, "error");   
+          }
+          
+        }
+      });
+    });
+
+    $("#js-isQuestion").click(function(e){
+      $('.js-questionType').toggleClass('hidden');
+    })

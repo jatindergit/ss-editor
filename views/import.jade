@@ -1,0 +1,18 @@
+extends ./_layout.jade
+block content
+  .container
+    .row
+      .page-header
+        h1 Import existing project
+    .row 
+
+      - if (error_messages.length != 0)
+        p.bg-warning= error_messages
+
+      form(action="/import" method="post" enctype="multipart/form-data")
+        .form-group
+          label(for='datafile') Data File
+          input#datafile(type='file' name="file")
+          p.help-block Import an existing application file that has been pre-parsed.
+        button.btn.btn-default(type='submit') Import File
+

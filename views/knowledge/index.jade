@@ -1,0 +1,93 @@
+include ../includes/_knoledgemenu.jade
+extends ../_layout.jade
+block content
+  .container
+    .row
+      +subNav('concepts')
+
+      .bs-callout.bs-callout-default
+        h4 Concept Hierarchy
+        p Concept table
+
+      .form-group.pull-right
+        form#target(action="/knowledge/concepts/import" method="post" enctype="multipart/form-data")
+          span.btn.btn-default.btn-file
+            | Load Concepts 
+            input#datafile(type='file' name="file")
+
+      if (concept && concept.length !== 0)
+        h3 Exploring #{concept[0].subject}
+
+        table.table.table-bordered.table-condensed
+          thead
+            tr
+              th Subject
+              th Predicate
+              th Object
+              td Action
+
+          - for (var i = 0; i < concept.length; i++)
+            tr 
+              td= concept[i].subject
+              td= concept[i].predicate
+              td
+                 a(href="/knowledge/concept/#{concept[i].object}")= concept[i].object
+              td
+                 a(data-s="#{concept[i].subject}", data-p="#{concept[i].predicate}", data-o="#{concept[i].object}").js-del.btn.btn-danger.btn-xs Delete
+
+      if (concepts)     
+        table.table.table-bordered.table-condensed
+          - for (var i = 0; i < concepts.length; i += 5)
+              tr
+                - if (concepts[i])
+                  td 
+                    a(href="/knowledge/concept/#{concepts[i].subject}")= concepts[i].subject                
+                - if (concepts[i+1])
+                  td 
+                    a(href="/knowledge/concept/#{concepts[i+1].subject}")= concepts[i+1].subject
+                - if (concepts[i+2])
+                  td 
+                    a(href="/knowledge/concept/#{concepts[i+2].subject}")= concepts[i+2].subject
+                - if (concepts[i+3])
+                  td 
+                    a(href="/knowledge/concept/#{concepts[i+3].subject}")= concepts[i+3].subject
+                - if (concepts[i+4])
+                  td 
+                    a(href="/knowledge/concept/#{concepts[i+4].subject}")= concepts[i+4].subject
+
+
+
+  script.
+    $('#datafile').change(function() {
+      $('#target').submit();
+    });
+
+
+    $(".js-del").click(function(e){
+      var s = $(e.target).data('s');
+      var p = $(e.target).data('p');
+      var o = $(e.target).data('o');
+
+      swal({
+        title: "Are you sure?",   
+        text: "You will not be able to recover this fact!",   
+        type: "warning",   
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Yes, delete it!",   
+        closeOnConfirm: true 
+      }, function(){   
+        $.ajax({ 
+          url: '/knowledge/world/',
+          type: 'DELETE',
+          data: {
+            s: s,
+            p: p,
+            o: o
+          },
+          success: function(result) {
+            $(e.target).parents('tr').remove();
+          }
+        });
+      });
+    });

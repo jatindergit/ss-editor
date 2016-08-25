@@ -1,0 +1,53 @@
+extends ../_layout.jade
+block content
+  .container
+    .row
+      .page-header
+        h1 Gambit List
+        p Gambits are the primary building block of the system. They have two parts, a Trigger, and Reply.
+
+      - if (success_messages.length != 0)
+        p.bg-success= success_messages
+
+      table.table.table-bordered.table-condensed
+        thead
+          tr
+            th(style="width:25px") Question
+            th Input
+            th First Reply
+            th(style="width:25px") Reply Count
+            th Action
+
+        - for (var i = 0; i < gambits.length; i++)
+          tr 
+            td= (gambits[i].isQuestion) ? "?":"+"
+            td
+              a(href="/gambits/#{gambits[i]._id}")= gambits[i].input 
+            td= (gambits[i].replies.length >= 1)? gambits[i].replies[0].reply : ""
+            td= gambits[i].replies.length
+            td
+              a(data-id="#{gambits[i]._id}").js-del.btn.btn-danger.btn-xs Delete
+  script.
+
+    $(".js-del").click(function(e){
+      var id = $(e.target).data('id');
+      swal({
+        title: "Are you sure?",   
+        text: "You will not be able to recover this gambit!",   
+        type: "warning",   
+        showCancelButton: true,   
+        confirmButtonColor: "#DD6B55",   
+        confirmButtonText: "Yes, delete it!",   
+        closeOnConfirm: true 
+      }, function(){   
+        $.ajax({ 
+          url: '/gambits/' + id, 
+          type: 'DELETE',
+          success: function(result) {
+            $(e.target).parents('tr').remove();
+            //- swal("Deleted!", "Gone", "success"); 
+          }
+        });
+      });
+    });
+

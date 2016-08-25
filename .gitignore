@@ -1,0 +1,12 @@
+.DS_Store
+node_modules/*
+testbot/*
+botfacts/*
+test/*
+*.log
+logs/*
+systemDB/*
+uploads/*
+plugins/wizard.js
+superscript-editor.iml
+.idea

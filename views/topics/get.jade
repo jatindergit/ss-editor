@@ -1,0 +1,136 @@
+extends ../_layout.jade
+block content
+  .container
+    
+    form(action="/topics/#{topic._id}/sort" method="post")
+      .form-group
+          button.btn.btn-warning.pull-right(type='submit', disabled='disabled') Sort Topic 
+          | &nbsp;
+          a.btn.btn-primary.pull-right(href="/gambits/new?topicId=#{topic._id}") Create New Gambit 
+          | &nbsp;
+
+  
+    - if (success_messages.length != 0)
+      p.bg-success= success_messages
+
+    .row
+      .page-header
+        h1 Edit Topic '#{topic.name}'
+
+        - if (error_messages.length != 0)
+          p.bg-warning= error_messages
+
+        form.form-horizontal(action="/topics/#{topic._id}", method="post")
+          input(type="hidden" name="_method", value="put")
+
+          .form-group
+            label.col-sm-2.control-label(for='formName') Topic Name
+            .col-sm-10
+              input#formName.form-control(type='text', name="name", placeholder='Topic Name', value='#{topic.name}')
+          .form-group
+            label.col-sm-2.control-label(for='keywords') Keywords
+            .col-sm-10
+              input#keywords.form-control(type='text', name="keywords", placeholder='Topic Keywords', value='#{topic.keywords}')
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              .checkbox
+                label
+                  - if (topic.system)
+                    input(type='checkbox', name="system", checked="checked") 
+                  - else 
+                    input(type='checkbox', name="system" ) 
+                  | System Topic
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              .checkbox
+                label
+                  - if (topic.keep)
+                    input(type='checkbox', name="keep", checked="checked") 
+                  - else 
+                    input(type='checkbox', name="keep" ) 
+                  | Keep Topic                  
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              button.btn.btn-default(type='submit') Update Topic
+
+
+
+        form.form-horizontal.js-submitTest
+          .form-group
+            label.col-sm-2.control-label(for='testPhrase') Test phrase
+            .col-sm-10
+              input#testPhrase.form-control.input-lg(type='text', name="phrase", placeholder='Test Phrase')
+
+          .form-group
+            .col-sm-offset-2.col-sm-10
+              a.js-testPhrase.btn.btn-default Test for Match
+
+
+        //- code
+        //-   pre= topic
+
+        ul.sortable
+          - for (var i = 0; i < topic.gambits.length; i++)
+            li(id="#{topic.gambits[i]._id}")
+              a(href="/gambits/#{topic.gambits[i]._id}")= topic.gambits[i].input
+              ul
+                - for (var j = 0; j < topic.gambits[i].replies.length; j++)
+                  li
+                    a(href="/replies/#{topic.gambits[i].replies[j]._id}")= topic.gambits[i].replies[j].reply
+
+      script.
+        $('.sortable').sortable().bind('sortupdate', function(e, ui) {
+          //Triggered when the user stopped sorting and the DOM position has changed.
+          var elements = $('.sortable > li');
+
+          var ids = elements.map(function(i, ex){ return ex.id; }).toArray();
+          $.ajax({
+            url: '/topics/#{topic._id}/reorder',
+            type: 'POST',
+            data: {
+              ids: ids
+            },
+            success: function(result) {
+              console.log("done", result);
+            }
+          });
+
+        });
+
+        $('.js-submitTest').submit(function(e){
+          e.preventDefault();
+          $(".hilite").removeClass("hilite");
+          $('.js-testPhrase').trigger('click');
+        });
+
+        // Check to see if we can match
+        $('.js-testPhrase').click(function(e){
+          e.preventDefault;
+          var string = $("#testPhrase").val();
+
+          $.ajax({ 
+            url: '/topics/#{topic._id}/test', 
+            type: 'POST',
+            data: {
+              phrase: string
+            },
+            success: function(result) {
+              var stars = [];
+
+              if (result.length !== 0) {
+                for (var i = 0; i < result.length; i++) {
+                  $("#" + result[i]._id).addClass("hilite");
+                }
+
+                swal("Tested", "Yay found matches", "success");
+              } else {
+                swal({
+                  title:"Tested", 
+                  text: "'" + string + "' does not match.\n <a href='/gambits/new?topicId=#{topic._id}&input="+string+"'>Create Gambit</a>", 
+                  type: "error",
+                  html: true
+                }); 
+              }
+            }
+          });
+        });                    

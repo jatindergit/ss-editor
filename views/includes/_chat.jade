@@ -1,0 +1,134 @@
+.container
+  .row
+    .col-md-6
+      .panel.panel-primary
+        .panel-heading
+          span.glyphicon.glyphicon-comment
+          |  Chat
+            
+        .panel-body
+          ul.chat
+            
+        .panel-footer
+          .input-group
+            input#btn-input.form-control.input-sm(type='text', placeholder='Type your message here...')
+            span.input-group-btn
+              button#btn-chat.btn.btn-primary.btn-sm
+                | Send
+    .col-md-6
+      include ../includes/_gambitform.jade
+
+
+script.
+  var socket = io();
+  var lastMessage = "";
+  var lastReplyId, lastTopicId, lastGambitId;
+  var oldscrollHeight = $(".panel-body")[0].scrollHeight;
+  // Send message
+  $('#btn-input').bind('keyup', function(e) {
+    var code = e.keyCode || e.which;
+    if(code == 13) {
+      $('#btn-chat').trigger('click');
+    }
+  });
+
+  $('#btn-chat').click(function(){
+    var message = $('#btn-input').val();
+    socket.emit('chat message', message);
+    $('#btn-input').val("");
+    lastMessage = message;
+    var userChat = ich.userChat({string:message});
+    $('.chat').append(userChat);
+    return false;
+  });
+
+  // Recieve Message
+  socket.on('chat message', function(msgObj){
+    
+    if (msgObj.replyId && msgObj.gambitId) {
+      lastReplyId = msgObj.replyId;
+      lastGambitId = msgObj.gambitId;
+      lastTopicId = msgObj.topicId;    
+    }
+    var botChat = ich.botChat(msgObj);
+    $('.chat').append(botChat);
+    
+    var newscrollHeight = $(".panel-body")[0].scrollHeight;
+    if(newscrollHeight > oldscrollHeight){ 
+      $(".panel-body").scrollTop($(".panel-body")[0].scrollHeight);
+    }
+  });
+
+  // providing we have a edit widget near by
+  $("body").on({
+    click:function(e){
+      e.preventDefault();
+      $("#input").val($(e.target).text())
+    }
+  }, ".js-edit");
+
+  $("body").on({
+    click:function(e){
+      e.preventDefault();
+      $('#replyId').val('');
+      $('#topicGroup').removeClass('hidden');
+      $('#topicId option[value="'+lastTopicId+'"]').prop('selected', true);
+      $("#input").val($(e.target).parents("li").prev().find('.js-edit').text());
+    }
+  }, ".js-editTopic");
+
+  $("body").on({
+    click:function(e){
+      e.preventDefault();
+      $("#input").val(lastMessage);
+      $('#topicGroup').addClass('hidden');
+      $("#replyId").val(lastReplyId);
+      // Reset the list
+      $('#topicId option[value=""]').prop('selected', true);
+    }
+  }, ".js-editDirect");
+  
+script(id="botChat" type="text/html").
+  <li class="left js-bot clearfix" data-gambit-id="{{gambitId}}" data-reply-id="{{replyId}}">
+    <span class="chat-img pull-left">
+      <img src="http://placehold.it/50/55C1E7/fff&text=BOT" alt="User Avatar" class="img-circle" />
+    </span>
+    <div class="chat-body clearfix">
+      <div class="header">
+        <strong class="primary-font">#{locals.projectName}</strong> <small class="pull-right text-muted">
+          <span class="glyphicon glyphicon-time"></span>{{createdAt}}</small>
+      </div>
+      {{#topicName}}
+        <p>Topic: <strong><a href="/topics/{{topicId}}">{{topicName}}</a></strong></p>
+      {{/topicName}}
+      
+      {{#gambitId}}
+        <p style="white-space: pre-wrap;"><a href="/gambits/{{gambitId}}", target="_blank">{{string}}</a></p>
+      {{/gambitId}}
+      
+      {{^gambitId}}
+        {{#string}}
+          <p style="white-space: pre-wrap;">{{string}}</p>
+        {{/string}}
+        
+        {{^string}}
+          <p>Create <a class="js-editTopic" href="#"><em>Topic Reply</em></a> or <a class="js-editDirect" href="#"><em>Direct Reply</em></a></p>
+        {{/string}}
+
+      {{/gambitId}}
+    </div>
+  </li>
+
+script(id="userChat" type="text/html").
+  <li class="right js-human clearfix">
+    <span class="chat-img pull-right">
+      <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+    </span>
+    <div class="chat-body clearfix">
+      <div class="header">
+        <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>moments ago</small>
+        <strong class="pull-right primary-font">Bot Author</strong>
+      </div>
+      <p><a class="js-edit" href="#">{{string}}</a></p>
+    </div>
+  </li>
