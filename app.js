@@ -7,10 +7,11 @@ var ss = require("superscript");
 var express = require('express');
 var app = express();
 
+
 var appServer = require('http').Server(app);
 var io = require('socket.io')(appServer);
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || 3001;
 var dbName = process.env.BOT || "testbot";
 var dbHost = process.env.DBHOST || "localhost";
 
@@ -26,14 +27,14 @@ Settings = mongoose.model('Settings', settingsSchema);
 mongoose.connect(config.db, options, function(err){
   if (err) console.log("Error connecting to the MongoDB --", err);
 });
-
+console.log(mongoose);
 var botOptions = {
   mongoose : mongoose,
   factSystem: factSystem,
   editMode : true
 };
 
-app.projectName = dbName;
+app.projectName = 'Air Bot';
 var conn = mongoose.connection;
 
 conn.once('open', function() {
@@ -43,9 +44,11 @@ conn.once('open', function() {
   require('./config/express')(app);
 
   new ss(botOptions, function(err, botInstance){
+	  
     require('./config/chat')(io, botInstance, models);
 
     var dashRoutes = require('./controllers/dashboard')(models, botInstance, app.projectName);
+    
     var gambitRoute = require('./controllers/gambits')(models, botInstance);
     var topicsRoute = require('./controllers/topics')(models, botInstance);
     var repliesRoute = require('./controllers/replies')(models, botInstance);

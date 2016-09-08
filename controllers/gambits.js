@@ -169,6 +169,10 @@ module.exports = function(models, bot) {
 		//IMportant: http://localhost:3000/gambits/new?replyId=57bd83ab43e7a7621b9524f1
 		//here replyId is the parent id of this new gambit
 		
+		console.log('------------Request log-----------');
+            console.log(req.body);
+            console.log('------------Request log ends-----------');
+		
       if (req.body.input === "") {
         req.flash('error', 'Input is Required herehere.');
         res.redirect('back');
@@ -242,7 +246,8 @@ module.exports = function(models, bot) {
           return res.sendStatus(410);
         } else {
           return item.remove(function (err) {
-            return res.redirect('/gambits');
+            //return res.redirect('/gambits');
+            return res.sendStatus(200);
           });
         }
       });
