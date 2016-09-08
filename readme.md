@@ -50,4 +50,4 @@ More information on using SuperScript and this Editor is available at http://sup
 
 [The MIT License (MIT)](LICENSE.md)
 
-Copyright © 2014-2015 Rob Ellis
+Copyright © 2016-2017 Jatinder Singh
