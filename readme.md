@@ -1,6 +1,4 @@
-# WARNING - This project is out of date and not maintained, please use at your own risk.
-
-# SSC Editor
+# SS Editor
 
 An entirly new way to create chatbots using SuperScript. Featuring a built-in realtime chat interface and gambit editor.
 
@@ -22,13 +20,8 @@ We are assuming you have node.js 0.10.x installed and MongoDB.
 
 
 ### Further Reading
-
-* [Introducing SuperScript](https://medium.com/@rob_ellis/superscript-ce40e9720bef) on Medium
-* [Creating a Chatbot](https://medium.com/@rob_ellis/creating-a-chat-bot-42861e6a2acd) on Medium
-* [Custom Slack chatbot tutorial](https://medium.com/@rob_ellis/slack-superscript-rise-of-the-bots-bba8506a043c) on Medium
-* [SuperScript the big update](https://medium.com/@rob_ellis/superscript-the-big-update-3fa8099ab89a) on Medium
 * [Full Documentation](http://superscriptjs.com/documentation/scripting)
-* Follow [@rob_ellis](https://twitter.com/rob_ellis)
+
 
 ## Terminology
 
